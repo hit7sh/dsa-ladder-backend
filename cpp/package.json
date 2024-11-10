@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "docker run -d -v ~/dsa-ladder-backend/cpp/code:/usr/src/myapp -w /urs/src/myapp gcc:latest sleep infinity",
+    "build": "docker run -d -v ~/dsa-ladder-backend/cpp/code:/usr/src/myapp -w /usr/src/myapp gcc:latest sleep infinity",
     "exec": "docker exec -i $(docker ps -q -l) sh ./script/script.sh",
     "start": "npm run build && npm run exec"
   },
