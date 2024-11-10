@@ -1,2 +1,2 @@
 #include<bits/stdc++.h>
- using namespace std; int main() { cout << 'h' << 'i'; }
+ using namespace std; int main() { cout << 'h' << 'i '; }
