@@ -14,20 +14,21 @@ app.use(express.json());
 app.post('/run', async (req, res) => {
     const { code } = req.body;
     console.log({ code });
-    fs.writeFile(`../cpp/code/index.cpp`, code, (err) => {
+    fs.writeFile(`./cpp/code/index.cpp`, code, (err) => {
         if (err) {
             console.log(`❌ . FAILED`);
         }
     });
     shell.exec('cd ~/dsa-ladder-backend/cpp && npm start', { async: true }, (e, stdout) => {
         try {
-            fs.readFile('../cpp/code/output.txt', 'utf8', (err, data) => {
-                if (err) res.json({ error: 'Something wrong happened' });
+            fs.readFile('./cpp/code/output.txt', 'utf8', (err, data) => {
+
+                if (err) res.status(200).send({ error: 'Something wrong happened1' });
                 res.json({ output: data });
             })
         } catch (err) {
             console.log(`❌  FAILED`);
-            res.json({ error: 'Something wrong happened' });
+            res.status(200).send({ error: 'Something wrong happened' });
         }
     });
 });
