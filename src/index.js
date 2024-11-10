@@ -8,7 +8,7 @@ const { stdout } = require('process');
 
 const app = express();
 
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: 'https://dsa-ladder.vercel.app' }));
 app.use(express.json());
 
 app.post('/run', async (req, res) => {
