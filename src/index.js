@@ -19,7 +19,7 @@ app.post('/run', async (req, res) => {
             console.log({ 'duringWrite': err });
             return res.status(200).send({ error: 'cpp file write failed' });
         }
-        shell.exec('cd ~/dsa-ladder-backend/cpp && npm start', { async: true }, (e, stdout) => {
+        shell.exec('cd ~/dsa-ladder-backend/cpp && npm run exec', { async: true }, (e, stdout) => {
             fs.readFile('./cpp/code/output.txt', 'utf8', (err, data) => {
                 if (err) return res.status(200).send({ error: 'Something wrong happened1' });
                 return res.json({ output: data });
