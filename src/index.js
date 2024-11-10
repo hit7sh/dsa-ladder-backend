@@ -16,21 +16,14 @@ app.post('/run', async (req, res) => {
     console.log({ code });
     fs.writeFile(`./cpp/code/index.cpp`, code, (err) => {
         if (err) {
-            console.log(`❌ . FAILED`);
+            console.log({ 'duringWrite': err });
+            return res.status(200).send({ error: 'cpp file write failed' });
         }
-    });
-    shell.exec('cd ~/dsa-ladder-backend/cpp && npm start', { async: true }, (e, stdout) => {
-        try {
+        shell.exec('cd ~/dsa-ladder-backend/cpp && npm start', { async: true }, (e, stdout) => {
             fs.readFile('./cpp/code/output.txt', 'utf8', (err, data) => {
-
-                if (err) res.status(200).send({ error: 'Something wrong happened1' });
-                res.json({ output: data });
-            })
-        } catch (err) {
-            console.log(`❌  FAILED`);
-            res.status(200).send({ error: 'Something wrong happened' });
-        }
+                if (err) return res.status(200).send({ error: 'Something wrong happened1' });
+                return res.json({ output: data });
+            });
+        });
     });
 });
-
-app.listen(3000, () => console.log('Server listening on port 3000'));
