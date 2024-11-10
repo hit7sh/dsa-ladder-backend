@@ -21,20 +21,14 @@ app.post('/run', async (req, res) => {
     });
     shell.exec('cd ~/dsa-ladder-backend/cpp && npm start', { async: true }, (e, stdout) => {
         try {
-            const file = readline.createInterface({
-                input: fs.createReadStream('../cpp/code/output.txt'),
-                output: process.stdout,
-                terminal: false
-            });
-
-            file.on('line', (line) => {
-                console.log(line);
-            });
+            fs.readFile('../cpp/code/output.txt', 'utf8', (err, data) => {
+                if (err) res.json({ error: 'Something wrong happened' });
+                res.json({ output: data });
+            })
         } catch (err) {
             console.log(`❌  FAILED`);
+            res.json({ error: 'Something wrong happened' });
         }
-        res.send('done')
-
     });
 });
 
