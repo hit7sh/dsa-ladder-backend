@@ -1,5 +1,5 @@
 const shell = require('shelljs')
-const fs = require('fs');
+const fs = require('fs').promises;
 const readline = require('readline');
 
 const express = require('express')
@@ -14,16 +14,23 @@ app.use(express.json());
 app.post('/run', async (req, res) => {
     const { code } = req.body;
     console.log({ code });
+    try {
+        await fs.writeFile(`./cpp/code/runtime_errors.txt`, '');
+        await fs.writeFile(`./cpp/code/compile_errors.txt`, '');
+    } catch (err) {
+    }
+
     fs.writeFile(`./cpp/code/index.cpp`, code, (err) => {
         if (err) {
             console.log({ 'duringWrite': err });
             return res.status(200).send({ error: 'cpp file write failed' });
         }
-        shell.exec('cd ~/dsa-ladder-backend/cpp && npm run exec', { async: true }, (e, stdout) => {
-            fs.readFile('./cpp/code/output.txt', 'utf8', (err, data) => {
-                if (err) return res.status(200).send({ error: 'Something wrong happened1' });
-                return res.json({ output: data });
-            });
+        shell.exec('cd ~/dsa-ladder-backend/cpp && npm run exec', { async: true }, async (e, stdout) => {
+            const compile_error = fs.readFile('./cpp/code/compile_errors.txt', 'utf-8');
+            if (compile_error)
+                return res.json({ compile_error });
+            const data = await fs.readFile('./cpp/code/output.txt', 'utf8');
+            return res.json({ output: data });
         });
     });
 });
