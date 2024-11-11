@@ -12,13 +12,14 @@ app.options('*', cors());
 app.use(express.json());
 
 app.post('/run', async (req, res) => {
-    const { code, language } = req.body;
+    const { code, inputText = '' } = req.body;
     console.log({ code });
 
     try {
         await fs.writeFile(`./cpp/code/runtime_errors.txt`, '');
         await fs.writeFile(`./cpp/code/compile_errors.txt`, '');
         await fs.writeFile(`./cpp/code/index.cpp`, code);
+        await fs.writeFile(`./cpp/code/index.cpp`, inputText);
     } catch (err) {
         console.log({ 'duringWrite': err });
         return res.status(200).send({ error: 'cpp file write failed' });
