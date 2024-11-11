@@ -19,7 +19,7 @@ app.post('/run', async (req, res) => {
         await fs.writeFile(`./cpp/code/runtime_errors.txt`, '');
         await fs.writeFile(`./cpp/code/compile_errors.txt`, '');
         await fs.writeFile(`./cpp/code/index.cpp`, code);
-        await fs.writeFile(`./cpp/code/index.cpp`, inputText);
+        await fs.writeFile(`./cpp/code/input.txt`, inputText);
     } catch (err) {
         console.log({ 'duringWrite': err });
         return res.status(200).send({ error: 'cpp file write failed' });
