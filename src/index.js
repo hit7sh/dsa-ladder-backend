@@ -25,7 +25,8 @@ app.post('/run', async (req, res) => {
     }
 
     shell.exec('cd ~/dsa-ladder-backend/cpp && npm run exec', { async: true }, async (e, stdout) => {
-        const compile_errors = fs.readFile('./cpp/code/compile_errors.txt', 'utf-8');
+        const compile_errors = await fs.readFile('./cpp/code/compile_errors.txt', 'utf-8');
+
         if (compile_errors?.length)
             return res.json({ compile_errors });
 
