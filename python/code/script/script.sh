@@ -1,0 +1,1 @@
+python3 script.py < input.txt > output.txt 2> runtime_errors.txt
