@@ -1,0 +1,13 @@
+{
+  "name": "cpp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "docker run -d -v ~/dsa-ladder-backend/java/code:/usr/src/myapp -w /usr/src/myapp openjdk:latest sleep infinity",
+    "exec": "docker exec -i $(docker ps -q -l) sh ./script/script.sh",
+    "start": "npm run build && npm run exec"
+  },
+  "author": "",
+  "license": "ISC"
+}
