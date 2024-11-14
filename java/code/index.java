@@ -1,2 +1,5 @@
-#include<bits/stdc++.h>
- using namespace std; int main() { cout << 'h' << 'i'; }
+public class index {
+    public static void main(String[] args) {
+        System.out.println("Hello..");
+    }
+}

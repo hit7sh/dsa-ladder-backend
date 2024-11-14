@@ -1,4 +1,4 @@
-javac YourProgram.java 2> compile_error.txt
+javac index.java 2> compile_errors.txt
 if [ $? -eq 0 ]; then
-    java YourProgram < input.txt > output.txt 2> runtime_errors.txt
+    java index < input.txt > output.txt 2> runtime_errors.txt
 fi
