@@ -14,7 +14,7 @@ const problemSchema = new mongoose.Schema({
     constraints: {
         type: String,
     },
-    examples: [string],
+    examples: [{ type: string }],
     testCases: [
         {
             input: {
