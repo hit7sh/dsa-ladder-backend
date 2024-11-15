@@ -4,28 +4,18 @@ const fs = require('fs').promises;
 const express = require('express')
 const cors = require('cors');
 
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { User } = require('./userSchema');
 
 const app = express();
 
 
-// connection 
+// data base connection 
 mongoose
-    .connect('mongodb://localhost:27017/appdb')
+    .connect('mongodb://localhost:27017/dsa-ladder')
     .then(() => console.log('MongoDB connected'))
-    .catch((err) => console.log({ MongoDBErrord: err }));
-
-// Schema
-const userSchema = new mongoose.Schema({
-    email: {
-        type: String,
-        unique: true,
-    },
-    time: {
-        type: String,
-    }
-});
-const User = mongoose.model('user', userSchema);
+    .catch((err) => console.log({ MongoError: err }));
+// ---
 
 
 app.use(cors());
