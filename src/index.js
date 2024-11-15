@@ -3,26 +3,32 @@ const fs = require('fs').promises;
 
 const express = require('express')
 const cors = require('cors');
-const allowedOrigin = 'https://dsa-ladder.vercel.app';
 
-const corsOptions = {
-    origin: allowedOrigin,
-};
 
+// database connection 
 const mongoose = require('mongoose');
 const User = require('./userSchema');
 const Problem = require('./problemSchema');
-
-const app = express();
-
-
-// data base connection 
 mongoose
     .connect('mongodb://localhost:27017/dsa-ladder')
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.log({ MongoError: err }));
 // ---
 
+
+const allowedOrigin = 'https://dsa-ladder.vercel.app';
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (origin === allowedOrigin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+};
+
+const app = express();
 
 app.use(cors(corsOptions));
 app.options('*', cors());
