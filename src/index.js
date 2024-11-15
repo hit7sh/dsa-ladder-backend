@@ -3,6 +3,11 @@ const fs = require('fs').promises;
 
 const express = require('express')
 const cors = require('cors');
+const allowedOrigin = 'https://dsa-ladder.vercel.app';
+
+const corsOptions = {
+    origin: allowedOrigin,
+};
 
 const mongoose = require('mongoose');
 const User = require('./userSchema');
@@ -19,7 +24,7 @@ mongoose
 // ---
 
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.options('*', cors());
 app.use(express.json());
 
@@ -120,7 +125,7 @@ app.post('/add-problem', async (req, res) => {
 
 app.get('/problems', async (req, res) => {
     try {
-        const problems = await Problem.find();
+        const problems = await Problem.find({}, { testCases: 0 });
         res.send(problems);
     } catch (err) {
         res.status(500).send({ error: 'db error' });
