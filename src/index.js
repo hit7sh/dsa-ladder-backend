@@ -55,7 +55,18 @@ const clearErrorAndOutputFiles = async ({ base_url }) => {
 app.post('/run', async (req, res) => {
     const { code, inputText = '', language, email } = req.body;
     console.log({ code });
-    await User.create({ email, time: new Date().toString() });
+    await User.create({
+        email,
+        time: new Date().toLocaleString('en-GB', {
+            timeZone: 'Asia/Kolkata',  // IST time zone
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+        }),
+    });
 
     const { base_url, docker_image, code_extension } = getLanguageDetails(language);
 
