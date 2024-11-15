@@ -6,6 +6,7 @@ const cors = require('cors');
 
 const mongoose = require('mongoose');
 const User = require('./userSchema');
+const Problem = require('./problemSchema');
 
 const app = express();
 
@@ -107,5 +108,23 @@ app.post('/run', async (req, res) => {
         return res.json({ output: data });
     });
 });
+
+app.post('/add-problem', async (req, res) => {
+    const { newProblem } = req.body;
+    try {
+        await Problem.insertOne(newProblem);
+    } catch (err) {
+        console.log('could not add problem to DB');
+    }
+})
+
+app.get('/problems', async (req, res) => {
+    try {
+        const problems = await Problem.find();
+        res.send(problems);
+    } catch (err) {
+        res.status(500).send({ error: 'db error' });
+    }
+})
 
 app.listen(3000, () => console.log('Server listening on port 3000'));
