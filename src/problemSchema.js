@@ -18,10 +18,10 @@ const problemSchema = new mongoose.Schema({
     testCases: [
         {
             input: {
-                type: string,
+                type: String,
             },
             output: {
-                type: string,
+                type: String,
             }
         }
     ],
