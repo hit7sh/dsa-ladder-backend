@@ -35,6 +35,7 @@ app.post('/run', async (req, res) => {
     try {
         await fs.writeFile(`${base_url}/runtime_errors.txt`, '');
         await fs.writeFile(`${base_url}/compile_errors.txt`, '');
+        await fs.writeFile(`${base_url}/output.txt`, '');
         await fs.writeFile(`${base_url}/index.cpp`, code);
         await fs.writeFile(`${base_url}/input.txt`, inputText);
     } catch (err) {
