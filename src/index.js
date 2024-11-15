@@ -51,11 +51,8 @@ const clearErrorAndOutputFiles = async ({ base_url }) => {
     await fs.writeFile(`${base_url}/compile_errors.txt`, '');
     await fs.writeFile(`${base_url}/output.txt`, '');
 };
-
-app.post('/run', async (req, res) => {
-    const { code, inputText = '', language, email } = req.body;
-    console.log({ code });
-    await User.create({
+const insertUserWithTime = async ({ email }) => {
+    const userData = {
         email,
         time: new Date().toLocaleString('en-GB', {
             timeZone: 'Asia/Kolkata',  // IST time zone
@@ -66,7 +63,24 @@ app.post('/run', async (req, res) => {
             minute: 'numeric',
             second: 'numeric',
         }),
-    });
+    };
+
+    try {
+        await User.findOneAndUpdate(
+            { email },  // Search for existing document by email
+            { $set: userData },         // Update the document or insert new one
+            { new: true, upsert: true } // If no document found, insert new one
+        );
+    } catch (err) {
+        console.log({ mongoInsertErr: err });
+    }
+}
+
+app.post('/run', async (req, res) => {
+    const { code, inputText = '', language, email } = req.body;
+    console.log({ code });
+
+    await insertUserWithTime({ email });
 
     const { base_url, docker_image, code_extension } = getLanguageDetails(language);
 
