@@ -16,22 +16,22 @@ app.post('/run', async (req, res) => {
     console.log({ code });
     let base_url = '', docker_image = '', code_extension = '';
     if (language === 'c_cpp') {
-        base_url = '~/dsa-ladder-backend/cpp/code';
+        base_url = './cpp/code';
         docker_image = 'gcc';
         code_extension = 'cpp';
     }
     else if (language === 'python') {
-        base_url = '~/dsa-ladder-backend/python/code'
+        base_url = './python/code'
         docker_image = 'python';
         code_extension = 'py';
     }
     else if (language === 'javascript') {
-        base_url = '~/dsa-ladder-backend/nodejs/code'
+        base_url = './nodejs/code'
         docker_image = 'node';
         code_extension = 'js';
     }
     else if (language === 'java') {
-        base_url = '~/dsa-ladder-backend/java/code';
+        base_url = './java/code';
         docker_image = 'openjdk';
         code_extension = 'java';
     }
