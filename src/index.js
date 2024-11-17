@@ -93,11 +93,11 @@ app.post('/run', async (req, res) => {
             if (compileErrors) {
                 // Send compile errors immediately and skip runtime execution
                 res.json({ output, compile_errors: compileErrors, runtime_errors: runtimeErrors });
-                shell.exec(`rm -rf ${TMP_DIR}`);
+                shell.exec(`rm ${cppFilePath} ${inputFilePath} ${executablePath}`);
             }
         } else {
             // Run the executable if compiled successfully
-            shell.exec(`${executablePath} < ${inputFilePath} && rm -rf ${TMP_DIR}`, { timeout: 5000 }, (runErr, runStdout, runStderr) => {
+            shell.exec(`${executablePath} < ${inputFilePath} && rm -rf ${cppFilePath} ${inputFilePath} ${executablePath}`, { timeout: 5000 }, (runErr, runStdout, runStderr) => {
                 output = runStdout;
                 runtimeErrors = runStderr || (runErr ? runErr.message : null);
                 res.json({ output, compile_errors: compileErrors, runtime_errors: runtimeErrors });
