@@ -1,6 +1,6 @@
 {
   "name": "dsa-ladder-backend",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Dsa Ladder Backend",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,9 @@
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "mongoose": "^8.8.1",
+    "path": "^0.12.7",
     "pm2": "^5.4.2",
-    "shelljs": "^0.8.5"
+    "shelljs": "^0.8.5",
+    "uuid": "^11.0.3"
   }
 }

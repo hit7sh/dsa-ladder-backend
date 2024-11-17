@@ -1,5 +1,8 @@
 const shell = require('shelljs')
-const fs = require('fs').promises;
+const fs = require('fs');
+
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const express = require('express')
 const cors = require('cors');
@@ -34,35 +37,7 @@ app.use(cors(corsOptions));
 app.options('*', cors());
 app.use(express.json());
 
-const getLanguageDetails = (language) => {
-    let base_url = '', docker_image = '', code_extension = '';
-    if (language === 'c_cpp') {
-        base_url = './cpp/code';
-        docker_image = 'gcc';
-        code_extension = 'cpp';
-    }
-    else if (language === 'python') {
-        base_url = './python/code'
-        docker_image = 'python';
-        code_extension = 'py';
-    }
-    else if (language === 'javascript') {
-        base_url = './nodejs/code'
-        docker_image = 'node';
-        code_extension = 'js';
-    }
-    else if (language === 'java') {
-        base_url = './java/code';
-        docker_image = 'openjdk';
-        code_extension = 'java';
-    }
-    return { base_url, docker_image, code_extension };
-};
-const clearErrorAndOutputFiles = async ({ base_url }) => {
-    await fs.writeFile(`${base_url}/runtime_errors.txt`, '');
-    await fs.writeFile(`${base_url}/compile_errors.txt`, '');
-    await fs.writeFile(`${base_url}/output.txt`, '');
-};
+
 const insertUserWithTime = async ({ email }) => {
     const userData = {
         email,
@@ -88,35 +63,46 @@ const insertUserWithTime = async ({ email }) => {
     }
 }
 
+
+const TMP_DIR = '/tmp/cpp_files';
+fs.mkdirSync(TMP_DIR, { recursive: true });
+
 app.post('/run', async (req, res) => {
-    const { code, inputText = '', language, email } = req.body;
-    console.log({ code });
+    const { code, language, inputText = '', email } = req.body;
 
-    await insertUserWithTime({ email });
+    if (email)
+        await insertUserWithTime({ email });
+    const fileId = uuidv4();
+    const cppFilePath = path.join(TMP_DIR, `${fileId}.cpp`);
+    const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
+    const executablePath = path.join(TMP_DIR, fileId);
 
-    const { base_url, docker_image, code_extension } = getLanguageDetails(language);
+    // Write code to a .cpp file
+    fs.writeFileSync(cppFilePath, code);
+    fs.writeFileSync(inputFilePath, inputText);
 
-    try {
-        clearErrorAndOutputFiles({ base_url });
-        await fs.writeFile(`${base_url}/index.${code_extension}`, code);
-        await fs.writeFile(`${base_url}/input.txt`, inputText);
-    } catch (err) {
-        console.log({ 'duringWrite': err });
-        return res.status(500).send({ error: 'cpp file write failed' });
-    }
 
-    shell.exec(`sh code-runner.sh ${docker_image}`, { async: true }, async (e, stdout) => {
-        const compile_errors = await fs.readFile(`${base_url}/compile_errors.txt`, 'utf-8');
+    // Compile the C++ code
+    shell.exec(`g++ -o ${executablePath} ${cppFilePath}`, (compileErr, stdout, stderr) => {
+        let output = null;
+        let compileErrors = null;
+        let runtimeErrors = null;
 
-        if (compile_errors?.length)
-            return res.json({ compile_errors });
-
-        const runtime_errors = await fs.readFile(`${base_url}/runtime_errors.txt`, 'utf-8');
-        if (runtime_errors?.length)
-            return res.json({ runtime_errors });
-
-        const data = await fs.readFile(`${base_url}/output.txt`, 'utf8');
-        return res.json({ output: data });
+        if (compileErr) {
+            compileErrors = stderr;
+            if (compileErrors) {
+                // Send compile errors immediately and skip runtime execution
+                res.json({ output, compile_errors: compileErrors, runtime_errors: runtimeErrors });
+                shell.exec(`rm -rf ${TMP_DIR}`);
+            }
+        } else {
+            // Run the executable if compiled successfully
+            shell.exec(`${executablePath} < ${inputFilePath} && rm -rf ${TMP_DIR}`, { timeout: 5000 }, (runErr, runStdout, runStderr) => {
+                output = runStdout;
+                runtimeErrors = runStderr || (runErr ? runErr.message : null);
+                res.json({ output, compile_errors: compileErrors, runtime_errors: runtimeErrors });
+            });
+        }
     });
 });
 
