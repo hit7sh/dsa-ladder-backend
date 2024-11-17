@@ -68,7 +68,7 @@ const TMP_DIR = '/tmp/cpp_files';
 fs.mkdirSync(TMP_DIR, { recursive: true });
 
 app.post('/run', async (req, res) => {
-    const { code, language, inputText = '', email } = req.body;
+    const { code, language, inputText = '', userEmail: email } = req.body;
 
     if (email)
         await insertUserWithTime({ email });
