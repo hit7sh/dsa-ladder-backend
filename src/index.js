@@ -33,8 +33,7 @@ const corsOptions = {
 
 const app = express();
 
-// app.use(cors(corsOptions));
-app.use(cors());
+app.use(cors(corsOptions));
 app.options('*', cors());
 app.use(express.json());
 
