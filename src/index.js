@@ -67,11 +67,7 @@ const insertUserWithTime = async ({ email }) => {
 const TMP_DIR = '/tmp/cpp_files';
 fs.mkdirSync(TMP_DIR, { recursive: true });
 
-app.post('/run', async (req, res) => {
-    const { code, language, inputText = '', userEmail: email } = req.body;
-
-    if (email)
-        await insertUserWithTime({ email });
+const runCppCode = async ({ res, code, inputText, }) => {
     const fileId = uuidv4();
     const cppFilePath = path.join(TMP_DIR, `${fileId}.cpp`);
     const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
@@ -104,6 +100,16 @@ app.post('/run', async (req, res) => {
             });
         }
     });
+}
+
+app.post('/run', async (req, res) => {
+    const { code, language, inputText = '', userEmail: email } = req.body;
+
+    if (email)
+        await insertUserWithTime({ email });
+
+    // if (language === 'c_cpp')
+    await runCppCode({ res, code, inputText });
 });
 
 app.post('/add-problem', async (req, res) => {
