@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # MongoDB Database Service
+  database:
+    image: mongo:latest
+    container_name: mongo_db
+    ports:
+      - "27017:27017" # Expose MongoDB on port 27017
+    volumes:
+      - mongo_data:/data/db # Use named volume to persist data
+    deploy:
+      replicas: 1 # Only 1 replica for the MongoDB database
+
+  # DSA Ladder Server Service
+  server:
+    image: dsa-ladder:latest # Replace with your actual DSA ladder image
+    container_name: dsa_ladder_server
+    ports:
+      - "3000:3000" # Expose the server on port 3000
+    depends_on:
+      - database # Ensure database starts before the server
+    environment:
+      - MONGO_URL=mongodb://database:27017 # Connect server to the database
+    deploy:
+      replicas: 4 # 4 replicas for the DSA Ladder server
+
+# Volumes to persist data
+volumes:
+  mongo_data:
+
