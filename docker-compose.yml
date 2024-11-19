@@ -4,7 +4,6 @@ services:
   # MongoDB Database Service
   database:
     image: mongo:latest
-    container_name: mongo_db
     ports:
       - "27017:27017" # Expose MongoDB on port 27017
     volumes:
@@ -15,7 +14,6 @@ services:
   # DSA Ladder Server Service
   server:
     image: dsa-ladder:latest # Replace with your actual DSA ladder image
-    container_name: dsa_ladder_server
     ports:
       - "3000:3000" # Expose the server on port 3000
     depends_on:
