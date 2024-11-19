@@ -15,7 +15,7 @@ const mongoose = require('mongoose');
 const User = require('./userSchema');
 const Problem = require('./problemSchema');
 mongoose
-    .connect(`mongodb+srv://${username}:${password}@cluster0.krn4y5n.mongodb.net/`)
+    .connect(`mongodb+srv://${username}:${password}@cluster0.krn4y5n.mongodb.net/dsa-ladder`)
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.log({ MongoError: err }));
 // ---
