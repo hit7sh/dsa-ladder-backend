@@ -13,7 +13,7 @@ const mongoose = require('mongoose');
 const User = require('./userSchema');
 const Problem = require('./problemSchema');
 mongoose
-    .connect('mongodb://localhost:27017/dsa-ladder')
+    .connect('mongodb://database:27017/dsa-ladder')
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.log({ MongoError: err }));
 // ---
