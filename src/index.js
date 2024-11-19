@@ -7,13 +7,15 @@ const { v4: uuidv4 } = require('uuid');
 const express = require('express')
 const cors = require('cors');
 
+const username = process.env.mongo_username;
+const password = process.env.mongo_password;
 
 // database connection 
 const mongoose = require('mongoose');
 const User = require('./userSchema');
 const Problem = require('./problemSchema');
 mongoose
-    .connect('mongodb://database:27017/dsa-ladder')
+    .connect(`mongodb+srv://${username}:${password}@cluster0.krn4y5n.mongodb.net/`)
     .then(() => console.log('MongoDB connected'))
     .catch((err) => console.log({ MongoError: err }));
 // ---
