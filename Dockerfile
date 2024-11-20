@@ -4,7 +4,11 @@ FROM node:16
 # Set the working directory inside the container
 WORKDIR /usr/src/app
 
+#install c++
 RUN apt-get update && apt-get install -y g++
+
+#install python3
+RUN apt-get install python3
 
 # Copy package.json and package-lock.json (if present) to the working directory
 COPY package*.json ./

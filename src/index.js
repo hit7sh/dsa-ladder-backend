@@ -105,14 +105,79 @@ const runCppCode = async ({ res, code, inputText, }) => {
     });
 }
 
+const runPythonCode = async ({ res, code, inputText, }) => {
+    const fileId = uuidv4();
+    const pythonFilePath = path.join(TMP_DIR, `${fileId}.py`);
+    const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
+
+    fs.writeFileSync(pythonFilePath, code);
+    fs.writeFileSync(inputFilePath, inputText);
+
+    shell.exec(`python3 ${pythonFilePath} < ${inputFilePath}`, (compileErr, stdout, stderr) => {
+        let output = null;
+        let compileErrors = null;
+        let runtimeErrors = null;
+        console.log({ compileErr, stdout, stderr });
+
+        if (compileErr) {
+            compileErrors = stderr;
+            if (compileErrors) {
+                // Send compile errors immediately and skip runtime execution
+                res.json({ output, compile_errors: compileErrors, runtime_errors: runtimeErrors });
+            }
+        } else {
+            res.json({ output: stdout, compile_errors: compileErrors, runtime_errors: runtimeErrors });
+
+        }
+        shell.exec(`rm ${pythonFilePath} ${inputFilePath}`);
+    });
+}
+
+const runNodejsCode = async ({ res, code, inputText, }) => {
+    const fileId = uuidv4();
+    const nodejsFilePath = path.join(TMP_DIR, `${fileId}.js`);
+    const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
+
+    fs.writeFileSync(nodejsFilePath, code);
+    fs.writeFileSync(inputFilePath, inputText);
+
+
+    shell.exec(`node ${nodejsFilePath} < ${inputFilePath}`, (compileErr, stdout, stderr) => {
+        let output = null;
+        let compileErrors = null;
+        let runtimeErrors = null;
+        console.log({ compileErr, stdout, stderr });
+
+        if (compileErr) {
+            compileErrors = stderr;
+            if (compileErrors) {
+                // Send compile errors immediately and skip runtime execution
+                res.json({ output, compile_errors: compileErrors, runtime_errors: runtimeErrors });
+            }
+        } else {
+            res.json({ output: stdout, compile_errors: compileErrors, runtime_errors: runtimeErrors });
+
+        }
+        shell.exec(`rm ${nodejsFilePath} ${inputFilePath}`);
+    });
+}
+
+app.post('/log-user', async (req, res) => {
+    const { userEmail: email } = req.body;
+    await insertUserWithTime({ email });
+    res.json({ message: 'Success' });
+});
+
 app.post('/run', async (req, res) => {
     const { code, language, inputText = '', userEmail: email } = req.body;
 
-    if (email)
-        await insertUserWithTime({ email });
-
-    // if (language === 'c_cpp')
-    await runCppCode({ res, code, inputText });
+    if (language === 'c_cpp') {
+        await runCppCode({ res, code, inputText });
+    } else if (language === 'python') {
+        await runPythonCode({ res, code, inputText });
+    } else if (language === 'javascript') {
+        await runNodejsCode({ res, code, inputText });
+    }
 });
 
 app.post('/add-problem', async (req, res) => {
