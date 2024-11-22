@@ -17,7 +17,7 @@ const Problem = require('./problemSchema');
 mongoose
     .connect(`mongodb+srv://${username}:${password}@cluster0.krn4y5n.mongodb.net/dsa-ladder`)
     .then(() => console.log('MongoDB connected'))
-    .catch((err) => console.log({ MongoError: err }));
+    .catch((err) => console.log({ MongoConnectError: err }));
 // ---
 
 
@@ -70,7 +70,7 @@ const insertUserWithTime = async ({ email }) => {
 const TMP_DIR = '/tmp/cpp_files';
 fs.mkdirSync(TMP_DIR, { recursive: true });
 
-const runCppCode = async ({ res, code, inputText, }) => {
+const runCppCode = async ({ res, code, inputText, validate = false }) => {
     const fileId = uuidv4();
     const cppFilePath = path.join(TMP_DIR, `${fileId}.cpp`);
     const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
