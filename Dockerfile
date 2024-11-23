@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y g++
 RUN apt-get install python3
 
 #install java
-RUN apt install default-jdk
+RUN apt-get install default-jdk
 
 # Copy package.json and package-lock.json (if present) to the working directory
 COPY package*.json ./
