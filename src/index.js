@@ -111,7 +111,7 @@ const runJavaCode = async ({ res, code, inputText, validate = false }) => {
     const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
     const execFilePath = path.join(TMP_DIR, `${fileId}`);
 
-    fs.writeFileSync(javaFilePath, code.replace('MainClass', fileId));
+    fs.writeFileSync(javaFilePath, code.replace(/MainClass/g, fileId));
     fs.writeFileSync(inputFilePath, inputText);
 
     shell.exec(`cd ${TMP_DIR} && javac ${fileId}.java`, (compileErr, stdout, stderr) => {
