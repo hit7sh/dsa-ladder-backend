@@ -67,7 +67,7 @@ const insertUserWithTime = async ({ email }) => {
 }
 
 
-const TMP_DIR = '/tmp/cpp_files';
+const TMP_DIR = '/tmp/code-files';
 fs.mkdirSync(TMP_DIR, { recursive: true });
 
 const runCppCode = async ({ res, code, inputText, validate = false }) => {
@@ -104,6 +104,36 @@ const runCppCode = async ({ res, code, inputText, validate = false }) => {
         }
     });
 }
+
+const runJavaCode = async ({ res, code, inputText, validate = false }) => {
+    const fileId = 'C' + Math.floor(Math.random() * 999999);
+    const javaFilePath = path.join(TMP_DIR, `${fileId}.java`);
+    const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
+    const execFilePath = path.join(TMP_DIR, `${fileId}`);
+
+    fs.writeFileSync(javaFilePath, code.replace('MainClass', fileId));
+    fs.writeFileSync(inputFilePath, inputText);
+
+    shell.exec(`cd ${TMP_DIR} && javac ${fileId}.java`, (compileErr, stdout, stderr) => {
+        let output = null;
+        let runtimeErrors = null;
+
+        if (compileErr) {
+            res.json({ output, compile_errors: stderr, runtime_errors });
+            shell.exec(`rm ${javaFilePath} ${inputFilePath}`);
+        } else {
+            // Run the compiled Java class, passing input through `<` redirection
+            shell.exec(`cd ${TMP_DIR} && java ${fileId} < ${fileId}.txt`, (runtimeErr, stdout, stderr) => {
+                output = stdout || null;
+                runtimeErrors = stderr || null;
+                res.json({ output, compile_errors: null, runtime_errors: runtimeErrors });
+
+                shell.exec(`rm ${javaFilePath} ${inputFilePath} ${execFilePath}.class`);
+            });
+        }
+    });
+}
+
 
 const runPythonCode = async ({ res, code, inputText, }) => {
     const fileId = uuidv4();
@@ -177,6 +207,8 @@ app.post('/run', async (req, res) => {
         await runPythonCode({ res, code, inputText });
     } else if (language === 'javascript') {
         await runNodejsCode({ res, code, inputText });
+    } else if (language === 'java') {
+        await runJavaCode({ res, code, inputText, });
     }
 });
 
