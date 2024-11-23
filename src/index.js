@@ -119,7 +119,7 @@ const runJavaCode = async ({ res, code, inputText, validate = false }) => {
         let runtimeErrors = null;
 
         if (compileErr) {
-            res.json({ output, compile_errors: stderr, runtime_errors });
+            res.json({ output, compile_errors: stderr, runtime_errors: runtimeErrors });
             shell.exec(`rm ${javaFilePath} ${inputFilePath}`);
         } else {
             // Run the compiled Java class, passing input through `<` redirection
