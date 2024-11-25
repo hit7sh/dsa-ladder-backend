@@ -7,38 +7,39 @@ import path from 'path';
 import { TMP_DIR } from './index.js';
 
 export const runCppCode = async ({ res, code, inputText, validate = false }) => {
-    const fileId = uuidv4();
-    const cppFilePath = path.join(TMP_DIR, `${fileId}.cpp`);
-    const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
-    const executablePath = path.join(TMP_DIR, fileId);
+    try {
+        const fileId = uuidv4();
+        const cppFilePath = path.join(TMP_DIR, `${fileId}.cpp`);
+        const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
+        const executablePath = path.join(TMP_DIR, fileId);
 
-    // Write code to a .cpp file
-    fs.writeFileSync(cppFilePath, code);
-    fs.writeFileSync(inputFilePath, inputText);
+        // Write code to a .cpp file
+        fs.writeFileSync(cppFilePath, code);
+        fs.writeFileSync(inputFilePath, inputText);
 
 
-    // Compile the C++ code
-    shell.exec(`g++ -o ${executablePath} ${cppFilePath}`, (compileErr, stdout, stderr) => {
-        let output = null;
-        let compileErrors = null;
-        let runtimeErrors = null;
+        // Compile the C++ code
+        const { stderr } = await shell.exec(`g++ -o ${executablePath} ${cppFilePath}`);
+        console.log({ stderr });
 
-        if (compileErr) {
-            compileErrors = stderr;
-            if (compileErrors) {
-                // Send compile errors immediately and skip runtime execution
-                res.json({ output, compile_errors: compileErrors, runtime_errors: runtimeErrors });
-                shell.exec(`rm ${cppFilePath} ${inputFilePath} ${executablePath}`);
-            }
-        } else {
-            // Run the executable if compiled successfully
-            shell.exec(`${executablePath} < ${inputFilePath} && rm -rf ${cppFilePath} ${inputFilePath} ${executablePath}`, { timeout: 5000 }, (runErr, runStdout, runStderr) => {
-                output = runStdout;
-                runtimeErrors = runStderr || (runErr ? runErr.message : null);
-                res.json({ output, compile_errors: compileErrors, runtime_errors: runtimeErrors });
-            });
+        if (stderr) {
+            console.log({ output: '', compile_errors: stderr, runtime_errors: '' });
+            shell.exec(`rm ${cppFilePath} ${inputFilePath} ${executablePath}`);
+            return { output: '', compile_errors: stderr, runtime_errors: '' };
         }
-    });
+        const { stdout, stderr: runtime_errors } = await shell.exec(`${executablePath} < ${inputFilePath} && rm -rf ${cppFilePath} ${inputFilePath} ${executablePath}`);
+        shell.exec(`rm ${cppFilePath} ${inputFilePath} ${executablePath}`);
+
+        if (runtime_errors) {
+            console.log({ output: '', compile_errors: '', runtime_errors });
+            return { output: '', compile_errors: '', runtime_errors };
+        }
+        console.log({ output: stdout, compile_errors: '', runtime_errors: '' });
+        return { output: stdout, compile_errors: '', runtime_errors: '' };
+    }
+    catch (err) {
+        return { output: '', compile_errors: '', runtime_errors: err }
+    }
 }
 
 export const runJavaCode = async ({ res, code, inputText, validate = false }) => {
@@ -73,58 +74,45 @@ export const runJavaCode = async ({ res, code, inputText, validate = false }) =>
 
 
 export const runPythonCode = async ({ res, code, inputText, }) => {
-    const fileId = uuidv4();
-    const pythonFilePath = path.join(TMP_DIR, `${fileId}.py`);
-    const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
+    try {
+        const fileId = uuidv4();
+        const pythonFilePath = path.join(TMP_DIR, `${fileId}.py`);
+        const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
 
-    fs.writeFileSync(pythonFilePath, code);
-    fs.writeFileSync(inputFilePath, inputText);
+        fs.writeFileSync(pythonFilePath, code);
+        fs.writeFileSync(inputFilePath, inputText);
 
-    shell.exec(`python3 ${pythonFilePath} < ${inputFilePath}`, (compileErr, stdout, stderr) => {
-        let output = null;
-        let compileErrors = null;
-        let runtimeErrors = null;
-        console.log({ compileErr, stdout, stderr });
+        const { stdout, stderr } = await shell.exec(`python3 ${pythonFilePath} < ${inputFilePath}`);
 
-        if (compileErr) {
-            compileErrors = stderr;
-            if (compileErrors) {
-                // Send compile errors immediately and skip runtime execution
-                res.json({ output, compile_errors: compileErrors, runtime_errors: runtimeErrors });
-            }
-        } else {
-            res.json({ output: stdout, compile_errors: compileErrors, runtime_errors: runtimeErrors });
-
-        }
         shell.exec(`rm ${pythonFilePath} ${inputFilePath}`);
-    });
+        if (stderr) {
+            return { output: '', compile_errors: stderr, runtime_errors: '' }
+        }
+        return { output: stdout, compile_errors: '', runtime_errors: '' };
+    } catch (err) {
+        return { output: '', compile_errors: '', runtime_errors: err }
+    }
 }
 
 export const runNodejsCode = async ({ res, code, inputText, }) => {
-    const fileId = uuidv4();
-    const nodejsFilePath = path.join(TMP_DIR, `${fileId}.js`);
-    const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
+    try {
+        const fileId = uuidv4();
+        const nodejsFilePath = path.join(TMP_DIR, `${fileId}.js`);
+        const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
 
-    fs.writeFileSync(nodejsFilePath, code);
-    fs.writeFileSync(inputFilePath, inputText);
+        fs.writeFileSync(nodejsFilePath, code);
+        fs.writeFileSync(inputFilePath, inputText);
 
+        const { stdout, stderr } = shell.exec(`node ${nodejsFilePath} < ${inputFilePath}`);
 
-    shell.exec(`node ${nodejsFilePath} < ${inputFilePath}`, (compileErr, stdout, stderr) => {
-        let output = null;
-        let compileErrors = null;
-        let runtimeErrors = null;
-        console.log({ compileErr, stdout, stderr });
-
-        if (compileErr) {
-            compileErrors = stderr;
-            if (compileErrors) {
-                // Send compile errors immediately and skip runtime execution
-                res.json({ output, compile_errors: compileErrors, runtime_errors: runtimeErrors });
-            }
-        } else {
-            res.json({ output: stdout, compile_errors: compileErrors, runtime_errors: runtimeErrors });
-
-        }
         shell.exec(`rm ${nodejsFilePath} ${inputFilePath}`);
-    });
+
+        if (stderr) {
+            return { output: '', compile_errors: stderr, runtime_errors: '' }
+        }
+        return { output: stdout, compile_errors: '', runtime_errors: '' };
+
+    } catch (err) {
+        return { output: '', compile_errors: '', runtime_errors: err }
+    }
 }
