@@ -42,32 +42,33 @@ export const runCppCode = async ({ res, code, inputText, validate = false }) => 
 }
 
 export const runJavaCode = async ({ res, code, inputText, validate = false }) => {
-    const fileId = 'C' + Math.floor(Math.random() * 999999);
-    const javaFilePath = path.join(TMP_DIR, `${fileId}.java`);
-    const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
-    const execFilePath = path.join(TMP_DIR, `${fileId}`);
+    try {
+        const fileId = 'C' + Math.floor(Math.random() * 999999);
+        const javaFilePath = path.join(TMP_DIR, `${fileId}.java`);
+        const inputFilePath = path.join(TMP_DIR, `${fileId}.txt`);
+        const execFilePath = path.join(TMP_DIR, `${fileId}`);
 
-    fs.writeFileSync(javaFilePath, code.replace(/MainClass/g, fileId));
-    fs.writeFileSync(inputFilePath, inputText);
+        fs.writeFileSync(javaFilePath, code.replace(/MainClass/g, fileId));
+        fs.writeFileSync(inputFilePath, inputText);
 
-    shell.exec(`cd ${TMP_DIR} && javac ${fileId}.java`, (compileErr, stdout, stderr) => {
-        let output = null;
-        let runtimeErrors = null;
-
-        if (compileErr) {
-            res.json({ output, compile_errors: stderr, runtime_errors: runtimeErrors });
-            shell.exec(`rm ${javaFilePath} ${inputFilePath}`);
-        } else {
-            // Run the compiled Java class, passing input through `<` redirection
-            shell.exec(`cd ${TMP_DIR} && java ${fileId} < ${fileId}.txt`, (runtimeErr, stdout, stderr) => {
-                output = stdout || null;
-                runtimeErrors = stderr || null;
-                res.json({ output, compile_errors: null, runtime_errors: runtimeErrors });
-
-                shell.exec(`rm ${javaFilePath} ${inputFilePath} ${execFilePath}.class`);
-            });
+        const { stderr } = await shell.exec(`cd ${TMP_DIR} && javac ${fileId}.java`);
+        if (stderr) {
+            shell.exec(`rm ${javaFilePath} ${inputFilePath} ${execFilePath}.class`);
+            return { output: '', compile_errors: stderr, runtime_errors: '' };
         }
-    });
+
+        const { stdout, stderr: runtime_errors } = await shell.exec(`cd ${TMP_DIR} && java ${fileId} < ${fileId}.txt`);
+        shell.exec(`rm ${javaFilePath} ${inputFilePath} ${execFilePath}.class`);
+
+        if (runtime_errors) {
+            return { output: '', compile_errors: '', runtime_errors };
+        }
+
+        return { output: stdout, compile_errors: '', runtime_errors: '' };
+    }
+    catch (err) {
+        return { output: '', compile_errors: '', runtime_errors: err }
+    }
 }
 
 
