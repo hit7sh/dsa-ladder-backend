@@ -19,5 +19,5 @@ export const runCode = async ({ res, code, inputText, language, }) => {
 
 export const submitCode = async ({ res, code, language, testCases, }) => {
     const codeRunner = getCodeRunner({ language });
-    return res.json({ out: 'underdevelopment' });
+    return res.json({ testCases });
 };

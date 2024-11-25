@@ -11,7 +11,7 @@ const password = process.env.mongo_password;
 import { mongoose } from 'mongoose';
 import { User } from './userSchema.js';
 import { Problem } from './problemSchema.js';
-import { runCode } from './evaluateCode.js';
+import { runCode, submitCode } from './evaluateCode.js';
 
 mongoose
     .connect(`mongodb+srv://${username}:${password}@cluster0.krn4y5n.mongodb.net/dsa-ladder`)
@@ -65,6 +65,17 @@ const insertUserWithTime = async ({ email }) => {
     }
 }
 
+const getTestCases = async ({ title }) => {
+    try {
+        return await Problem.findOne(
+            { title },
+            { testCases: 1, _id: 0 },
+        )
+    } catch (err) {
+        return { err };
+    }
+};
+
 
 export const TMP_DIR = '/tmp/code-files';
 fs.mkdirSync(TMP_DIR, { recursive: true });
@@ -83,6 +94,15 @@ app.post('/run', async (req, res) => {
 
 app.post('/submit', async (req, res) => {
     const { code, language, problemTitle, } = req.body;
+    const { testCases } = await getTestCases({ title: problemTitle });
+
+    if (!testCases) {
+        res.json({ error: 'Internal Server Error' });
+    } else {
+
+        await submitCode({ res, code, language, testCases });
+    }
+
 });
 
 app.post('/add-problem', async (req, res) => {
