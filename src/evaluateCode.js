@@ -26,24 +26,26 @@ const compareOutputs = (str1, str2) => {
 export const submitCode = async ({ res, code, language, testCases, }) => {
     const codeRunner = getCodeRunner({ language });
     const response = [];
-    await Promise.all(testCases?.map(async ({ input, output: expectedOutput, }) => {
+    await Promise.all(testCases?.map(async ({ input, output: expectedOutput, }, index) => {
         const { output, compile_errors, runtime_errors } = await codeRunner({ res, code, inputText: input, })
-
+        let cur = {};
+        if (index < 3) {
+            cur = { expectedOutput, codeOutput: output, input };
+        }
         if (runtime_errors || compile_errors) {
-            response.push({
-                verdict: 'ER',
-            });
+            cur = { ...cur, verdict: 'ER', };
+            response.push(cur);
             return;
         }
         if (!compareOutputs(expectedOutput, output)) {
-            response.push({
-                verdict: 'WA'
-            });
+            cur = { ...cur, verdict: 'WA' };
+
+            response.push(cur);
             return;
         }
-        response.push({
-            verdict: 'AC',
-        });
+        cur = { ...cur, verdict: 'AC' };
+
+        response.push(cur);
     }));
     res.json({ response });
 };
