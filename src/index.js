@@ -11,7 +11,7 @@ const password = process.env.mongo_password;
 import { mongoose } from 'mongoose';
 import { User } from './userSchema.js';
 import { Problem } from './problemSchema.js';
-import { runCppCode, runPythonCode, runNodejsCode, runJavaCode } from './codeRunners.js';
+import { runCode } from './evaluateCode.js';
 
 mongoose
     .connect(`mongodb+srv://${username}:${password}@cluster0.krn4y5n.mongodb.net/dsa-ladder`)
@@ -77,17 +77,12 @@ app.post('/log-user', async (req, res) => {
 
 
 app.post('/run', async (req, res) => {
-    const { code, language, inputText = '', userEmail: email } = req.body;
+    const { code, language, inputText = '', } = req.body;
+    runCode({ res, code, inputText, language, })
+});
 
-    if (language === 'c_cpp') {
-        await runCppCode({ res, code, inputText });
-    } else if (language === 'python') {
-        await runPythonCode({ res, code, inputText });
-    } else if (language === 'javascript') {
-        await runNodejsCode({ res, code, inputText });
-    } else if (language === 'java') {
-        await runJavaCode({ res, code, inputText, });
-    }
+app.post('/submit', async (req, res) => {
+    const { code, language, problemTitle, } = req.body;
 });
 
 app.post('/add-problem', async (req, res) => {

@@ -20,10 +20,8 @@ export const runCppCode = async ({ res, code, inputText, validate = false }) => 
 
         // Compile the C++ code
         const { stderr } = await shell.exec(`g++ -o ${executablePath} ${cppFilePath}`);
-        console.log({ stderr });
 
         if (stderr) {
-            console.log({ output: '', compile_errors: stderr, runtime_errors: '' });
             shell.exec(`rm ${cppFilePath} ${inputFilePath} ${executablePath}`);
             return { output: '', compile_errors: stderr, runtime_errors: '' };
         }
@@ -31,10 +29,8 @@ export const runCppCode = async ({ res, code, inputText, validate = false }) => 
         shell.exec(`rm ${cppFilePath} ${inputFilePath} ${executablePath}`);
 
         if (runtime_errors) {
-            console.log({ output: '', compile_errors: '', runtime_errors });
             return { output: '', compile_errors: '', runtime_errors };
         }
-        console.log({ output: stdout, compile_errors: '', runtime_errors: '' });
         return { output: stdout, compile_errors: '', runtime_errors: '' };
     }
     catch (err) {
