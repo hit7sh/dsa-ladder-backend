@@ -32,6 +32,11 @@ export const submitCode = async ({ res, code, language, testCases, }) => {
         if (index < 3) {
             cur = { expectedOutput, codeOutput: output, input };
         }
+        if (runtime_errors === 'TLE') {
+            cur = { ...cur, verdict: 'TLE', };
+            response.push(cur);
+            return;
+        }
         if (runtime_errors || compile_errors) {
             cur = { ...cur, verdict: 'ER', };
             response.push(cur);

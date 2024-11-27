@@ -25,11 +25,14 @@ export const runCppCode = async ({ res, code, inputText, validate = false }) => 
             shell.exec(`rm ${cppFilePath} ${inputFilePath} ${executablePath}`);
             return { output: '', compile_errors: stderr, runtime_errors: '' };
         }
-        const { stdout, stderr: runtime_errors } = await shell.exec(`${executablePath} < ${inputFilePath} && rm -rf ${cppFilePath} ${inputFilePath} ${executablePath}`);
+        const { stdout, stderr: runtime_errors, code: timed_out } = await shell.exec(`${executablePath} < ${inputFilePath}`, { timeout: 2000 });
         shell.exec(`rm ${cppFilePath} ${inputFilePath} ${executablePath}`);
 
         if (runtime_errors) {
             return { output: '', compile_errors: '', runtime_errors };
+        }
+        if (timed_out) {
+            return { output: '', compile_errors: '', runtime_errors: 'TLE', };
         }
         return { output: stdout, compile_errors: '', runtime_errors: '' };
     }
@@ -54,11 +57,15 @@ export const runJavaCode = async ({ res, code, inputText, validate = false }) =>
             return { output: '', compile_errors: stderr, runtime_errors: '' };
         }
 
-        const { stdout, stderr: runtime_errors } = await shell.exec(`cd ${TMP_DIR} && java ${fileId} < ${fileId}.txt`);
+        const { stdout, stderr: runtime_errors, code: timed_out } = await shell.exec(`cd ${TMP_DIR} && java ${fileId} < ${fileId}.txt`, { timeout: 2000 });
         shell.exec(`rm ${javaFilePath} ${inputFilePath} ${execFilePath}.class`);
 
         if (runtime_errors) {
             return { output: '', compile_errors: '', runtime_errors };
+        }
+
+        if (timed_out) {
+            return { output: '', compile_errors: '', runtime_errors: 'TLE', };
         }
 
         return { output: stdout, compile_errors: '', runtime_errors: '' };
@@ -78,11 +85,14 @@ export const runPythonCode = async ({ res, code, inputText, }) => {
         fs.writeFileSync(pythonFilePath, code);
         fs.writeFileSync(inputFilePath, inputText);
 
-        const { stdout, stderr } = await shell.exec(`python3 ${pythonFilePath} < ${inputFilePath}`);
+        const { stdout, stderr, code: timed_out } = await shell.exec(`python3 ${pythonFilePath} < ${inputFilePath}`, { timeout: 2000 });
 
         shell.exec(`rm ${pythonFilePath} ${inputFilePath}`);
         if (stderr) {
             return { output: '', compile_errors: stderr, runtime_errors: '' }
+        }
+        if (timed_out) {
+            return { output: '', compile_errors: '', runtime_errors: 'TLE', };
         }
         return { output: stdout, compile_errors: '', runtime_errors: '' };
     } catch (err) {
@@ -99,12 +109,15 @@ export const runNodejsCode = async ({ res, code, inputText, }) => {
         fs.writeFileSync(nodejsFilePath, code);
         fs.writeFileSync(inputFilePath, inputText);
 
-        const { stdout, stderr } = shell.exec(`node ${nodejsFilePath} < ${inputFilePath}`);
+        const { stdout, stderr, code: timed_out } = shell.exec(`node ${nodejsFilePath} < ${inputFilePath}`, { timeout: 2000 });
 
         shell.exec(`rm ${nodejsFilePath} ${inputFilePath}`);
 
         if (stderr) {
             return { output: '', compile_errors: stderr, runtime_errors: '' }
+        }
+        if (timed_out) {
+            return { output: '', compile_errors: '', runtime_errors: 'TLE', };
         }
         return { output: stdout, compile_errors: '', runtime_errors: '' };
 
