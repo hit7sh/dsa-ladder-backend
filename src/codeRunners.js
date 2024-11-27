@@ -6,7 +6,7 @@ import path from 'path';
 
 import { TMP_DIR } from './index.js';
 
-export const runCppCode = async ({ res, code, inputText, validate = false }) => {
+export const runCppCode = async ({ code, inputText }) => {
     try {
         const fileId = uuidv4();
         const cppFilePath = path.join(TMP_DIR, `${fileId}.cpp`);
@@ -41,7 +41,7 @@ export const runCppCode = async ({ res, code, inputText, validate = false }) => 
     }
 }
 
-export const runJavaCode = async ({ res, code, inputText, validate = false }) => {
+export const runJavaCode = async ({ code, inputText }) => {
     try {
         const fileId = 'C' + Math.floor(Math.random() * 999999);
         const javaFilePath = path.join(TMP_DIR, `${fileId}.java`);
@@ -76,7 +76,7 @@ export const runJavaCode = async ({ res, code, inputText, validate = false }) =>
 }
 
 
-export const runPythonCode = async ({ res, code, inputText, }) => {
+export const runPythonCode = async ({ code, inputText, }) => {
     try {
         const fileId = uuidv4();
         const pythonFilePath = path.join(TMP_DIR, `${fileId}.py`);
@@ -100,7 +100,7 @@ export const runPythonCode = async ({ res, code, inputText, }) => {
     }
 }
 
-export const runNodejsCode = async ({ res, code, inputText, }) => {
+export const runNodejsCode = async ({ code, inputText, }) => {
     try {
         const fileId = uuidv4();
         const nodejsFilePath = path.join(TMP_DIR, `${fileId}.js`);

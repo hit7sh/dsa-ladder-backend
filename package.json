@@ -4,7 +4,8 @@
   "description": "Dsa Ladder Backend",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:lint": "eslint ."
   },
   "author": "",
   "license": "ISC",
@@ -18,5 +19,11 @@
     "shelljs": "^0.8.5",
     "uuid": "^11.0.3"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "eslint": "^9.15.0",
+    "eslint-plugin-node": "^11.1.0",
+    "globals": "^15.12.0"
+  }
 }

@@ -4,7 +4,9 @@ import fs from 'fs';
 import express from 'express';
 import cors from 'cors';
 
+// eslint-disable-next-line no-undef
 const username = process.env.mongo_username;
+// eslint-disable-next-line no-undef
 const password = process.env.mongo_password;
 
 // database connection 
@@ -34,7 +36,7 @@ const corsOptions = {
 
 const app = express();
 
-// app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 app.use(cors());
 app.options('*', cors());
 app.use(express.json());
@@ -126,8 +128,9 @@ app.post('/add-problem', async (req, res) => {
     try {
         await Problem.insertOne(newProblem);
     } catch (err) {
-        console.log('could not add problem to DB');
+        console.log('could not add problem to DB', { err });
     }
+    res.send('done')
 })
 
 app.get('/problems', async (req, res) => {
@@ -135,7 +138,7 @@ app.get('/problems', async (req, res) => {
         const problems = await Problem.find({}, { testCases: 0 });
         res.send(problems);
     } catch (err) {
-        res.status(500).send({ error: 'db error' });
+        res.status(500).send({ error: 'db error', err });
     }
 })
 

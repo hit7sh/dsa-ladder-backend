@@ -1,4 +1,5 @@
 import { runCppCode, runJavaCode, runNodejsCode, runPythonCode } from './codeRunners.js';
+import { addSolvedProblem } from './index.js';
 
 const getCodeRunner = ({ language }) => {
     if (language === 'c_cpp') {
