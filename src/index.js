@@ -105,7 +105,7 @@ app.post('/log-user', async (req, res) => {
     res.json({ message: 'Success' });
 });
 
-app.post('get-solved-problems', async (req, res) => {
+app.post('/get-solved-problems', async (req, res) => {
     try {
         const { userEmail: email } = req.body;
         const user = await User.findOne({ email }).select('solvedProblems');
