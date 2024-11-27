@@ -23,9 +23,10 @@ const compareOutputs = (str1, str2) => {
     return cleanStr1 === cleanStr2;
 };
 
-export const submitCode = async ({ res, code, language, testCases, }) => {
+export const submitCode = async ({ res, code, language, testCases, email, title, }) => {
     const codeRunner = getCodeRunner({ language });
     const response = [];
+    let countAC = 0;
     await Promise.all(testCases?.map(async ({ input, output: expectedOutput, }, index) => {
         const { output, compile_errors, runtime_errors } = await codeRunner({ res, code, inputText: input, })
         let cur = {};
@@ -48,9 +49,13 @@ export const submitCode = async ({ res, code, language, testCases, }) => {
             response.push(cur);
             return;
         }
+        countAC += 1;
         cur = { ...cur, verdict: 'AC' };
 
         response.push(cur);
     }));
+    if (countAC === response.length) {
+        await addSolvedProblem(email, title);
+    }
     res.json({ response });
 };

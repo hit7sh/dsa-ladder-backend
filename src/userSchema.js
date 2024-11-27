@@ -7,7 +7,11 @@ const userSchema = new mongoose.Schema({
     },
     time: {
         type: String,
-    }
+    },
+    solvedProblems: {
+        type: [String], // Array of strings
+        default: [],
+    },
 });
 
 export const User = mongoose.model('user', userSchema);

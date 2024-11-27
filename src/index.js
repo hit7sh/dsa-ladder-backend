@@ -65,6 +65,23 @@ const insertUserWithTime = async ({ email }) => {
     }
 }
 
+export const addSolvedProblem = async (email, problemKey) => {
+    try {
+        const result = await User.updateOne(
+            { email }, // Find the document where the email matches
+            { $addToSet: { solvedProblems: problemKey } } // Use $addToSet to prevent duplicates
+        );
+
+        if (result.matchedCount > 0) {
+            console.log('Solved problem added successfully.');
+        } else {
+            console.log('No user found with the given email.');
+        }
+    } catch (error) {
+        console.error('Error adding solved problem:', error);
+    }
+};
+
 const getTestCases = async ({ title }) => {
     try {
         return await Problem.findOne(
@@ -93,14 +110,13 @@ app.post('/run', async (req, res) => {
 });
 
 app.post('/submit', async (req, res) => {
-    const { code, language, problemTitle, } = req.body;
+    const { code, language, problemTitle, userEmail: email, } = req.body;
     const { testCases } = await getTestCases({ title: problemTitle });
 
     if (!testCases) {
         res.json({ error: 'Internal Server Error' });
     } else {
-
-        await submitCode({ res, code, language, testCases });
+        await submitCode({ res, code, language, testCases, email, title: problemTitle, });
     }
 
 });
