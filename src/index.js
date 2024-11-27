@@ -105,6 +105,20 @@ app.post('/log-user', async (req, res) => {
     res.json({ message: 'Success' });
 });
 
+app.post('get-solved-problems', async (req, res) => {
+    try {
+        const { userEmail: email } = req.body;
+        const user = await User.findOne({ email }).select('solvedProblems');
+
+        if (user) {
+            res.json(user.solvedProblems);
+        } else {
+            res.status(500).json({ error: 'failed' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'failed' });
+    }
+});
 
 app.post('/run', async (req, res) => {
     const { code, language, inputText = '', } = req.body;
@@ -120,7 +134,6 @@ app.post('/submit', async (req, res) => {
     } else {
         await submitCode({ res, code, language, testCases, email, title: problemTitle, });
     }
-
 });
 
 app.post('/add-problem', async (req, res) => {
